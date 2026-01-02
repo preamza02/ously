@@ -13,6 +13,12 @@ export default defineConfig({
 		paraglideVitePlugin({ project: './project.inlang', outdir: './src/lib/paraglide' })
 	],
 
+	build: {
+		rollupOptions: {
+			external: ['async_hooks', 'node:async_hooks']
+		}
+	},
+
 	test: {
 		expect: { requireAssertions: true },
 
