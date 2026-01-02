@@ -1,0 +1,44 @@
+{
+    "name": "@ously/core",
+    "private": true,
+    "version": "0.0.1",
+    "type": "module",
+    "main": "./model/index.ts",
+    "scripts": {
+        "test": "vitest run",
+        "test:watch": "vitest"
+    },
+    "exports": {
+        "./tax/model": {
+            "types": "./data/tax/model.ts",
+            "import": "./data/tax/model.ts"
+        },
+        "./tax/th/th": {
+            "types": "./data/tax/th/th.ts",
+            "import": "./data/tax/th/th.ts"
+        },
+        "./person/person": {
+            "types": "./model/person/person.ts",
+            "import": "./model/person/person.ts"
+        },
+        "./action/model": {
+            "types": "./model/action/model.ts",
+            "import": "./model/action/model.ts"
+        },
+        "./time/app/weekInYourLife": {
+            "types": "./time/app/weekInYourLife.ts",
+            "import": "./time/app/weekInYourLife.ts"
+        },
+        "./time/repo/lifeChapter": {
+            "types": "./time/repo/lifeChapter.ts",
+            "import": "./time/repo/lifeChapter.ts"
+        },
+        "./utils/id": {
+            "types": "./utils/id.ts",
+            "import": "./utils/id.ts"
+        }
+    },
+    "devDependencies": {
+        "vitest": "^4.0.15"
+    }
+}
