@@ -6,10 +6,10 @@ on:
   push:
     branches: [main]
     paths:
-      - 'apps/consciously/**'
-      - 'packages/core/**'
-      - 'packages/ui/**'
-      - 'pnpm-lock.yaml'
+      - "apps/consciously/**"
+      - "packages/core/**"
+      - "packages/ui/**"
+      - "pnpm-lock.yaml"
   workflow_dispatch:
 
 jobs:
@@ -31,7 +31,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'pnpm'
+          cache: "pnpm"
 
       - name: Install Dependencies
         run: pnpm install
@@ -44,5 +44,6 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy apps/consciously/.svelte-kit/cloudflare --project-name=consciously --branch=main
+          workingDirectory: apps/consciously
+          command: pages deploy .svelte-kit/cloudflare --project-name=consciously --branch=main
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
