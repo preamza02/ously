@@ -3,13 +3,14 @@
     import ChevronDownIcon from '@lucide/svelte/icons/chevron-down';
     import { getLocalTimeZone, today, CalendarDate } from '@internationalized/date';
 
-    let { isOpen, onClose, onHandleSubmit, birthDate, lifeSpanYears, activeLifeYears } = $props<{ 
+    let { isOpen, onClose, onHandleSubmit, onReset, birthDate, lifeSpanYears, activeLifeYears } = $props<{ 
         birthDate: Date;
         lifeSpanYears: number;
         activeLifeYears: number;
         isOpen: boolean; 
         onClose: () => void,
-        onHandleSubmit: (birthDate: Date, lifeSpanYears: number, activeLifeYears: number) => void
+        onHandleSubmit: (birthDate: Date, lifeSpanYears: number, activeLifeYears: number) => void,
+        onReset?: () => void
     }>();
 
     // Convert Date to CalendarDate
@@ -40,7 +41,7 @@
     }
 </script>
 
-<Modal {isOpen} {onClose} title="Settings" subtitle="Configure your life parameters.">
+<Modal {isOpen} {onClose} title="Personalize" subtitle="Customize your life timeline parameters.">
     <div class="space-y-8">
         <!-- Date of Birth -->
         <div class="space-y-3">
@@ -101,6 +102,20 @@
         </div>
 
         <p class="text-[10px] text-slate-400 dark:text-slate-500 -mt-2">Active life = age until you can still adventure. Lifespan = expected total years.</p>
+
+        <!-- Settings Section -->
+        <div class="space-y-3 pt-6 border-t border-slate-200 dark:border-slate-700">
+            <span class="block text-xs font-bold uppercase tracking-wider text-slate-500">Settings</span>
+            <div class="flex items-center justify-between">
+                <p class="text-sm text-slate-600 dark:text-slate-400">Reset data to default</p>
+                <button 
+                    class="px-4 py-2 rounded-lg border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-xs font-bold hover:bg-red-100 dark:hover:bg-red-900/40 transition-all"
+                    onclick={onReset}
+                >
+                    Reset
+                </button>
+            </div>
+        </div>
     </div>
 
     {#snippet footer()}

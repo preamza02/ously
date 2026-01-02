@@ -43,7 +43,8 @@ import {
     Settings,
     Trash,
     BookOpen,
-    Check
+    Check,
+    UserCog
 } from 'lucide-svelte';
 
 export enum IconType {
@@ -101,6 +102,7 @@ export enum IconType {
     STARS = 'stars',
     BOOK_OPEN = 'book_open',
     CHECK = 'check',
+    USER_COG = 'user_cog',
 }
 
 export const iconMap: Record<IconType, any> = {
@@ -157,7 +159,8 @@ export const iconMap: Record<IconType, any> = {
     'family': Home,
     'stars': Star,
     'book_open': BookOpen,
-    'check': Check
+    'check': Check,
+    'user_cog': UserCog
 };
 
 export const availableIcons = Object.keys(iconMap) as IconType[];

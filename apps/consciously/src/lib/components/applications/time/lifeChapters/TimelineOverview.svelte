@@ -2,11 +2,12 @@
     import type { WeekInYourLife } from '@ously/core/time/repo/lifeChapter';
     import { UnchangeableIcon, IconType } from '@ously/ui';
 
-    let { onAddChapter, onAddSpecialEvent, onOpenSettings, onShowHelp, timeline, currentWeekNumber, lifeSpanWeeks, activeLifeYears = 65 } = $props<{ 
+    let { onAddChapter, onAddSpecialEvent, onOpenSettings, onShowHelp, timeline, currentWeekNumber, lifeSpanWeeks, activeLifeYears = 65, hasOpenedHelpBefore = true } = $props<{ 
         timeline: WeekInYourLife[];
         currentWeekNumber: number;
         lifeSpanWeeks: number;
         activeLifeYears?: number;
+        hasOpenedHelpBefore?: boolean;
         onAddChapter: () => void;
         onAddSpecialEvent?: () => void;
         onOpenSettings?: () => void;
@@ -58,19 +59,24 @@
             </div>
         </div>
         <div class="flex items-center gap-2 flex-wrap-reverse justify-end">
-            <button 
-                class="bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 p-2 rounded-lg transition-all flex items-center justify-center order-4"
-                onclick={onShowHelp}
-                title="About Life in Weeks"
-            >
-                <UnchangeableIcon name={IconType.HELP} class="text-[20px]" />
-            </button>
+            <div class="relative order-4">
+                {#if !hasOpenedHelpBefore}
+                    <span class="absolute -top-5 left-1/2 -translate-x-1/2 text-[10px] font-bold text-primary whitespace-nowrap">Click here</span>
+                {/if}
+                <button 
+                    class="bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 border p-2 rounded-lg transition-all flex items-center justify-center {!hasOpenedHelpBefore ? 'border-primary ring-2 ring-primary/50 animate-pulse' : 'border-slate-200 dark:border-slate-700'}"
+                    onclick={onShowHelp}
+                    title="About Life in Weeks"
+                >
+                    <UnchangeableIcon name={IconType.HELP} class="text-[20px]" />
+                </button>
+            </div>
             <button 
                 class="bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 p-2 rounded-lg transition-all flex items-center justify-center order-3"
                 onclick={onOpenSettings}
-                title="Settings"
+                title="Personalize"
             >
-                <UnchangeableIcon name={IconType.SETTINGS} class="text-[20px]" />
+                <UnchangeableIcon name={IconType.USER_COG} class="text-[20px]" />
             </button>
             <button 
                 class="bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 px-3 py-2 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 whitespace-nowrap order-2"

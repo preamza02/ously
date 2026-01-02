@@ -28,6 +28,7 @@
     let isDetailModalOpen = $state(false);
     let isViewAllModalOpen = $state(false);
     let selectedRecord = $state<LifeChapter | null>(null);
+    let openedFromViewAll = $state(false);
 
     // Edit form state
     let editName = $state('');
@@ -75,13 +76,14 @@
         };
     }
 
-    function openDetailModal(record: LifeChapter) {
+    function openDetailModal(record: LifeChapter, fromViewAll: boolean = false) {
         selectedRecord = record;
         editName = record.name;
         editDescription = record.description || '';
         editStartWeek = record.startWeekNumber;
         editEndWeek = record.endWeekNumber;
         editSelectedTag = record.tags[0];
+        openedFromViewAll = fromViewAll;
         isDetailModalOpen = true;
     }
 
@@ -90,6 +92,10 @@
         selectedRecord = null;
         showEditStartCalendar = false;
         showEditEndCalendar = false;
+        if (openedFromViewAll) {
+            isViewAllModalOpen = true;
+            openedFromViewAll = false;
+        }
     }
 
     function openViewAllModal() {
@@ -107,13 +113,22 @@
 
     function handleDeleteFromModal() {
         if (selectedRecord) {
+            const shouldReturnToViewAll = openedFromViewAll;
             onDelete(selectedRecord.id, activeTab);
-            closeDetailModal();
+            isDetailModalOpen = false;
+            selectedRecord = null;
+            showEditStartCalendar = false;
+            showEditEndCalendar = false;
+            if (shouldReturnToViewAll) {
+                isViewAllModalOpen = true;
+            }
+            openedFromViewAll = false;
         }
     }
 
     function handleUpdate() {
         if (selectedRecord && editName && editStartWeek !== undefined && editEndWeek !== undefined) {
+            const shouldReturnToViewAll = openedFromViewAll;
             const updatedRecord: LifeChapter = {
                 ...selectedRecord,
                 name: editName,
@@ -123,7 +138,14 @@
                 tags: editSelectedTag ? [editSelectedTag] : []
             };
             onUpdate(updatedRecord, activeTab);
-            closeDetailModal();
+            isDetailModalOpen = false;
+            selectedRecord = null;
+            showEditStartCalendar = false;
+            showEditEndCalendar = false;
+            if (shouldReturnToViewAll) {
+                isViewAllModalOpen = true;
+            }
+            openedFromViewAll = false;
         }
     }
 
@@ -394,10 +416,10 @@
             
             <div 
                 class="px-8 py-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer flex items-center gap-4"
-                onclick={() => { closeViewAllModal(); openDetailModal(record); }}
+                onclick={() => { closeViewAllModal(); openDetailModal(record, true); }}
                 role="button"
                 tabindex="0"
-                onkeydown={(e) => e.key === 'Enter' && openDetailModal(record)}
+                onkeydown={(e) => e.key === 'Enter' && openDetailModal(record, true)}
             >
                 <div 
                     class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"

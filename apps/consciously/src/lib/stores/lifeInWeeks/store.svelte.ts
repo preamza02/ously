@@ -34,6 +34,7 @@ export interface LifeInWeeksState {
     lifeChapters: LifeChapter[];
     specialWeeks: LifeChapter[];
     tags: Tag[];
+    isOpenHelpModal: boolean;
 }
 
 // ============================================================================
@@ -49,6 +50,7 @@ interface StoredState {
     lifeChapters: LifeChapter[];
     specialWeeks: LifeChapter[];
     tags: Tag[];
+    isOpenHelpModal: boolean;
 }
 
 function loadFromStorage(): LifeInWeeksState | null {
@@ -103,46 +105,30 @@ const sampleChapters: LifeChapter[] = [
         id: 'chapter-1',
         name: 'Childhood & Schooling',
         description: 'Early years and primary education',
-        startWeekNumber: 1,
-        endWeekNumber: 936,
+        startWeekNumber: 0,
+        endWeekNumber: 152,
         tags: [{ id: 'childhood', name: 'Childhood', color: '#a855f7' }]
     },
     {
         id: 'chapter-2',
-        name: 'University Degree',
-        description: 'BSc Computer Science',
-        startWeekNumber: 937,
-        endWeekNumber: 1144,
+        name: 'Schooling',
+        description: 'Primary and secondary education',
+        startWeekNumber: 153,
+        endWeekNumber: 936,
         tags: [{ id: 'education', name: 'Education', color: '#f59e0b' }]
     },
-    {
-        id: 'chapter-3',
-        name: 'Gap Year Travel',
-        description: 'South East Asia backpacking trip',
-        startWeekNumber: 1145,
-        endWeekNumber: 1196,
-        tags: [{ id: 'vacation', name: 'Vacation', color: '#10b981' }]
-    },
-    {
-        id: 'chapter-4',
-        name: 'Senior Product Designer',
-        description: 'Leading design systems at Stripe. Focus on scaling the team.',
-        startWeekNumber: 1560,
-        endWeekNumber: 2080,
-        tags: [{ id: 'career', name: 'Career', color: '#3b82f6' }]
-    }
 ];
 
 // Sample special events
 const sampleSpecialWeeks: LifeChapter[] = [
-    {
-        id: 'event-1',
-        name: 'Japan Trip',
-        description: '3 weeks of exploration in Tokyo and Kyoto.',
-        startWeekNumber: 1750,
-        endWeekNumber: 1753,
-        tags: [{ id: 'vacation', name: 'Vacation', color: '#10b981' }]
-    }
+    // {
+    //     id: 'event-1',
+    //     name: 'NewYear With Family',
+    //     description: 'New Year with family',
+    //     startWeekNumber: 1750,
+    //     endWeekNumber: 1753,
+    //     tags: [{ id: 'family', name: 'Family', color: '#ec4899' }]
+    // }
 ];
 
 // ============================================================================
@@ -156,7 +142,8 @@ const defaultState: LifeInWeeksState = {
     activeLifeYears: 65,
     lifeChapters: [...sampleChapters],
     specialWeeks: [...sampleSpecialWeeks],
-    tags: [...defaultTags]
+    tags: [...defaultTags],
+    isOpenHelpModal: false
 };
 
 // Load from localStorage or use defaults
@@ -181,7 +168,8 @@ export function initPersistence() {
             activeLifeYears: lifeInWeeksState.activeLifeYears,
             lifeChapters: lifeInWeeksState.lifeChapters,
             specialWeeks: lifeInWeeksState.specialWeeks,
-            tags: lifeInWeeksState.tags
+            tags: lifeInWeeksState.tags,
+            isOpenHelpModal: lifeInWeeksState.isOpenHelpModal
         };
         saveToStorage(stateSnapshot);
     });
@@ -298,12 +286,13 @@ export const actions = {
 
     // Reset to defaults and clear localStorage
     reset() {
-        lifeInWeeksState.birthDate = new Date('1993-01-01');
-        lifeInWeeksState.lifeSpanWeeks = 4160;
-        lifeInWeeksState.activeLifeYears = 65;
-        lifeInWeeksState.lifeChapters = [];
-        lifeInWeeksState.specialWeeks = [];
-        lifeInWeeksState.tags = [...defaultTags];
+        lifeInWeeksState.birthDate = defaultState.birthDate;
+        lifeInWeeksState.lifeSpanWeeks = defaultState.lifeSpanWeeks;
+        lifeInWeeksState.activeLifeYears = defaultState.activeLifeYears;
+        lifeInWeeksState.lifeChapters = [...defaultState.lifeChapters];
+        lifeInWeeksState.specialWeeks = [...defaultState.specialWeeks];
+        lifeInWeeksState.tags = [...defaultState.tags];
+        lifeInWeeksState.isOpenHelpModal = defaultState.isOpenHelpModal;
     },
 
     // Clear localStorage only
@@ -311,5 +300,10 @@ export const actions = {
         if (browser) {
             localStorage.removeItem(STORAGE_KEY);
         }
+    },
+
+    // Mark help modal as opened (for first-time highlight)
+    setHelpModalOpened() {
+        lifeInWeeksState.isOpenHelpModal = true;
     }
 };

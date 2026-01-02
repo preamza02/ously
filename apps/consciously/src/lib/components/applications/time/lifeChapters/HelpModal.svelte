@@ -1,5 +1,6 @@
 <script lang="ts">
     import { Modal } from '@ously/ui';
+    import { UserCog, Plus } from 'lucide-svelte';
 
     let { isOpen, onClose } = $props<{ 
         isOpen: boolean; 
@@ -9,33 +10,55 @@
 
 <Modal {isOpen} {onClose} title="Life in Weeks" subtitle="Visualize your finite time and plan intentionally.">
     <div class="space-y-6 text-sm text-slate-600 dark:text-slate-300">
-        <!-- Quote -->
-        <div class="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-700 italic text-slate-500 dark:text-slate-400 text-center">
-            "Life is short but long enough to make a difference."
-            <div class="mt-1 text-xs font-semibold not-italic">— Me when I'm in the shower</div>
-        </div>
         <div class="space-y-3">
             <h4 class="font-display font-bold text-slate-900 dark:text-white flex items-center gap-2">
                 <span class="p-1 rounded bg-primary/10">💡</span>
                 The Philosophy
             </h4>
-            <p class="leading-relaxed">
-                "Life is too short to be lived on <strong>autopilot</strong>, yet it is long enough to build a <strong>legacy</strong> if lived with <strong>intention</strong>." Visualizing your <strong>finite weeks</strong> shifts your focus from the anxiety of running out of time to the <strong>clarity</strong> of how best to spend it.
+            <p class="leading-relaxed italic text-slate-500 dark:text-slate-400">
+                "Your time is finite. So stop trying to do everything and focus on what truly matters."
             </p>
-            <p class="leading-relaxed">
-                The struggles of a few years are just a <strong>single chapter</strong> in a much larger narrative, <strong>not the final story</strong>. You do not need to rush; you simply need to <strong>trust the process</strong> and ensure the chapters ahead are written with <strong>purpose</strong>.
-            </p>
+            <p class="text-xs text-right font-semibold text-slate-400 dark:text-slate-500">— Oliver Burkeman, <span class="italic">Four Thousand Weeks</span></p>
         </div>
 
-        <!-- How It Works -->
+        <div class="space-y-3 pt-4 border-t border-slate-200 dark:border-slate-700">
+            <h4 class="font-display font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                <span class="p-1 rounded bg-green-500/10">🛠️</span>
+                What is this tool?
+            </h4>
+            <p class="leading-relaxed">
+                This tool maps your entire life into a <strong>segmented timeline</strong>. It visualizes your distinct <strong>life chapters</strong> to give you a tangible perspective on your <strong>limited 4,000 weeks</strong>, helping you discover <strong>what truly matters</strong> in your lifetime.
+            </p>
+        </div>
         <div class="space-y-3 pt-4 border-t border-slate-200 dark:border-slate-700">
             <h4 class="font-display font-bold text-slate-900 dark:text-white flex items-center gap-2">
                 <span class="p-1 rounded bg-blue-500/10">📊</span>
-                How To Use
+                How to Use
             </h4>
             <ul class="space-y-2 list-none">
                 <li class="flex items-start gap-2">
                     <span class="text-primary font-bold">1.</span>
+                    <span>Click <span class="inline-flex items-center justify-center p-0.5 rounded bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700"><UserCog class="w-3 h-3" /></span> <strong>Personalize</strong> and add your birthday, expected active life, and expected lifespan.</span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <span class="text-primary font-bold">2.</span>
+                    <span>Think about your <strong>Life Chapters</strong> and add them <span class="inline-flex items-center justify-center p-0.5 rounded bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700"><Plus class="w-3 h-3" /></span>.</span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <span class="text-primary font-bold">3.</span>
+                    <span>Fill up your entire life timeline to see what truly matters to you.</span>
+                </li>
+            </ul>
+        </div>
+
+        <div class="space-y-3 pt-4 border-t border-slate-200 dark:border-slate-700">
+            <h4 class="font-display font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                <span class="p-1 rounded bg-purple-500/10">📚</span>
+                Key Concepts
+            </h4>
+            <ul class="space-y-2 list-none">
+                <li class="flex items-start gap-2">
+                    <span class="text-primary font-bold">•</span>
                     <span>
                         <span><strong>Life Chapters</strong> — Define major phases of your life what is your first priority in that time 
                         <br/>
@@ -45,13 +68,16 @@
                     </span>
                 </li>
                 <li class="flex items-start gap-2">
-                    <span class="text-primary font-bold">2.</span>
+                    <span class="text-primary font-bold">•</span>
+                    <span>
                     <span><strong>Special Weeks</strong> — Mark significant events that you need to prioritize in some period of time like </span>
                     <br/>
                     <span class="text-xs text-slate-500 dark:text-slate-400">- ex. New Year with Family, Your Wedding Week, Trip With your partner, etc</span>
+
+                    </span>
                 </li>
                 <li class="flex items-start gap-2">
-                    <span class="text-primary font-bold">3.</span>
+                    <span class="text-primary font-bold">•</span>
                     <span><strong>Tags</strong> — Categorize your time to see where your weeks are going</span>
                 </li>
             </ul>
@@ -74,8 +100,6 @@
                 </div>
             </div>
         </div>
-
-
     </div>
 
     {#snippet footer()}

@@ -65,6 +65,7 @@
 
     function openHelpModal() {
         isHelpModalOpen = true;
+        actions.setHelpModalOpened();
     }
 
     function closeHelpModal() {
@@ -79,6 +80,12 @@
         actions.setActiveLifeYears(activeLifeYears);
 
         closeSettingsModal();
+    }
+
+    function handleResetToDefaults() {
+        actions.clearStorage();
+        actions.reset();
+        window.location.reload();
     }
     
     function addModalOnHandleSubmit(name: string, description: string, startWeek: number | undefined, endWeek: number | undefined, selectedTag: Tag | undefined) {
@@ -171,6 +178,7 @@
             {currentWeekNumber}
             lifeSpanWeeks={lifeSpanWeeksState}
             activeLifeYears={activeLifeYearsState}
+            hasOpenedHelpBefore={lifeInWeeksState.isOpenHelpModal}
             onAddChapter={openAddChapterModal} 
             onAddSpecialEvent={openAddSpecialEventModal}
             onOpenSettings={openSettingsModal}
@@ -231,6 +239,7 @@
     isOpen={isSettingsModalOpen}
     onClose={closeSettingsModal}
     onHandleSubmit={settingOnHandleSubmit}
+    onReset={handleResetToDefaults}
 />
 
 <HelpModal
