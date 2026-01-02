@@ -10,6 +10,7 @@
 		"binding": "ASSETS",
 		"directory": ".svelte-kit/cloudflare"
 	},
+	"pages_build_output_dir": ".svelte-kit/cloudflare",
 	"workers_dev": true,
 	"preview_urls": true
 }
