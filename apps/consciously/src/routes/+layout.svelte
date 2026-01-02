@@ -3,9 +3,12 @@
 	import { locales, localizeHref } from '$lib/paraglide/runtime';
 	import './layout.css';
 	import favicon from '$lib/assets/favicon.svg';
+	import SEO from '$lib/components/SEO.svelte';
 
 	let { children } = $props();
 </script>
+
+<SEO />
 
 <svelte:head><link rel="icon" href={favicon} /></svelte:head>
 
