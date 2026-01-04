@@ -5,6 +5,8 @@ node_modules
 
 test-results
 node_modules
+packages/ui/dist
+packages/ui/.svelte-kit
 
 # Output
 .output
