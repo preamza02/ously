@@ -35,6 +35,7 @@ export interface LifeInWeeksState {
     specialWeeks: LifeChapter[];
     tags: Tag[];
     isOpenHelpModal: boolean;
+    hasCompletedOnboarding: boolean;
 }
 
 // ============================================================================
@@ -51,6 +52,7 @@ interface StoredState {
     specialWeeks: LifeChapter[];
     tags: Tag[];
     isOpenHelpModal: boolean;
+    hasCompletedOnboarding: boolean;
 }
 
 function loadFromStorage(): LifeInWeeksState | null {
@@ -89,47 +91,20 @@ function saveToStorage(state: LifeInWeeksState): void {
 // Default Tags
 // ============================================================================
 
-const defaultTags: Tag[] = [
-    { id: 'unplanned', name: 'Unplanned', color: '#94a3b8' },
-    { id: 'career', name: 'Career', color: '#3b82f6' },
-    { id: 'education', name: 'Education', color: '#f59e0b' },
-    { id: 'vacation', name: 'Vacation', color: '#10b981' },
-    { id: 'health', name: 'Health', color: '#22c55e' },
-    { id: 'family', name: 'Family', color: '#ec4899' },
-    { id: 'childhood', name: 'Childhood', color: '#a855f7' }
+export const FIXED_PURPOSES: Tag[] = [
+    { id: 'money', name: 'Money', color: '#10b981' },      // Emerald
+    { id: 'work', name: 'Work', color: '#3b82f6' },        // Blue  
+    { id: 'health', name: 'Health', color: '#ef4444' },    // Red
+    { id: 'relation', name: 'Relation', color: '#ec4899' }, // Pink
+    { id: 'peace', name: 'Peace of Mind', color: '#8b5cf6' }, // Purple
+    { id: 'un-purpose', name: 'Un-purpose', color: '#94a3b8' } // Slate (for childhood)
 ];
 
 // Sample life chapters for demonstration
-const sampleChapters: LifeChapter[] = [
-    {
-        id: 'chapter-1',
-        name: 'Childhood & Schooling',
-        description: 'Early years and primary education',
-        startWeekNumber: 0,
-        endWeekNumber: 152,
-        tags: [{ id: 'childhood', name: 'Childhood', color: '#a855f7' }]
-    },
-    {
-        id: 'chapter-2',
-        name: 'Schooling',
-        description: 'Primary and secondary education',
-        startWeekNumber: 153,
-        endWeekNumber: 936,
-        tags: [{ id: 'education', name: 'Education', color: '#f59e0b' }]
-    },
-];
+const sampleChapters: LifeChapter[] = [];
 
 // Sample special events
-const sampleSpecialWeeks: LifeChapter[] = [
-    // {
-    //     id: 'event-1',
-    //     name: 'NewYear With Family',
-    //     description: 'New Year with family',
-    //     startWeekNumber: 1750,
-    //     endWeekNumber: 1753,
-    //     tags: [{ id: 'family', name: 'Family', color: '#ec4899' }]
-    // }
-];
+const sampleSpecialWeeks: LifeChapter[] = [];
 
 // ============================================================================
 // Reactive State (using $state)
@@ -142,14 +117,18 @@ const defaultState: LifeInWeeksState = {
     activeLifeYears: 65,
     lifeChapters: [...sampleChapters],
     specialWeeks: [...sampleSpecialWeeks],
-    tags: [...defaultTags],
-    isOpenHelpModal: false
+    tags: [...FIXED_PURPOSES],
+    isOpenHelpModal: false,
+    hasCompletedOnboarding: false
 };
 
 // Load from localStorage or use defaults
 const initialState = loadFromStorage() ?? defaultState;
 
 export const lifeInWeeksState = $state<LifeInWeeksState>(initialState);
+
+// Track if state has been loaded (for SSR/hydration)
+export const isStateLoaded = $state({ value: typeof window !== 'undefined' });
 
 // ============================================================================
 // Persistence Effect
@@ -169,7 +148,8 @@ export function initPersistence() {
             lifeChapters: lifeInWeeksState.lifeChapters,
             specialWeeks: lifeInWeeksState.specialWeeks,
             tags: lifeInWeeksState.tags,
-            isOpenHelpModal: lifeInWeeksState.isOpenHelpModal
+            isOpenHelpModal: lifeInWeeksState.isOpenHelpModal,
+            hasCompletedOnboarding: lifeInWeeksState.hasCompletedOnboarding
         };
         saveToStorage(stateSnapshot);
     });
@@ -216,12 +196,26 @@ export const derivedValues = {
         return getSortTagsFromWeekInYourLife(this.timeline);
     },
 
+    get futureTagStats() {
+        return getSortTagsFromWeekInYourLife(this.pastAndFuture.futureWeeks);
+    },
+
     get upcomingEvents() {
-        return getUpcomingSpecialEvents(lifeInWeeksState.birthDate, lifeInWeeksState.specialWeeks, 5);
+        const upcomingSpecial = getUpcomingSpecialEvents(lifeInWeeksState.birthDate, lifeInWeeksState.specialWeeks, 10);
+        const upcomingChapters = getUpcomingSpecialEvents(lifeInWeeksState.birthDate, lifeInWeeksState.lifeChapters, 10);
+
+        const allUpcoming = [...upcomingSpecial, ...upcomingChapters]
+            .sort((a, b) => a.startWeekNumber - b.startWeekNumber);
+
+        return allUpcoming.slice(0, 5);
     },
 
     get unplannedWeeks() {
         return getUnplannedWeeks(this.timeline);
+    },
+
+    get futureUnplannedWeeks() {
+        return getUnplannedWeeks(this.pastAndFuture.futureWeeks);
     }
 };
 
@@ -264,7 +258,7 @@ export const actions = {
 
     // Tag Actions
     addTag(tag: Tag) {
-        lifeInWeeksState.tags = [...lifeInWeeksState.tags, tag];
+        // No-op: Tags are fixed now
     },
 
     removeTag(id: string) {
@@ -305,5 +299,10 @@ export const actions = {
     // Mark help modal as opened (for first-time highlight)
     setHelpModalOpened() {
         lifeInWeeksState.isOpenHelpModal = true;
+    },
+
+    // Mark onboarding as complete
+    completeOnboarding() {
+        lifeInWeeksState.hasCompletedOnboarding = true;
     }
 };

@@ -1,16 +1,15 @@
 <script lang="ts">
     import type { Tag } from '@ously/core/utils/id';
-    import { getWeekNumberFromBirthDate } from '@ously/core/time/app/weekInYourLife';
-    import { UnchangeableIcon, Modal, Calendar, IconType } from '@ously/ui';
+    import { getWeekNumberFromBirthDate, getWeekStartDateAndEndDate } from '@ously/core/time/app/weekInYourLife';
+    import { UnchangeableIcon, Modal, Calendar, IconType, Switch, Label } from '@ously/ui';
     import { getLocalTimeZone, CalendarDate, type DateValue } from '@internationalized/date';
 
-    let { isOpen, onClose, mode = 'chapter', onHandleSubmit, allTags, birthDate, onAddTag, prefillStartWeek, prefillEndWeek } = $props<{ 
+    let { isOpen, onClose, onHandleSubmit, allTags, birthDate, onAddTag, prefillStartWeek, prefillEndWeek } = $props<{ 
         isOpen: boolean; 
         onClose: () => void;
-        mode?: 'chapter' | 'event';
         allTags: Tag[];
         birthDate: Date;
-        onHandleSubmit: (name: string, description: string, startWeek: number | undefined, endWeek: number | undefined, selectedTag: Tag | undefined) => void;
+        onHandleSubmit: (name: string, description: string, startWeek: number | undefined, endWeek: number | undefined, selectedTag: Tag | undefined, isSpecialWeek: boolean) => void;
         onAddTag?: (tag: Tag) => void;
         prefillStartWeek?: number;
         prefillEndWeek?: number;
@@ -21,12 +20,17 @@
     let startWeek = $state<number | undefined>(undefined);
     let endWeek = $state<number | undefined>(undefined);
     let selectedTag = $state<Tag | undefined>(undefined);
+    let isSpecialWeek = $state(false);
     
     // Calendar states
     let showStartCalendar = $state(false);
     let showEndCalendar = $state(false);
     let startCalendarValue = $state<CalendarDate | undefined>(undefined);
     let endCalendarValue = $state<CalendarDate | undefined>(undefined);
+    
+    // Refs for calendar containers to handle mobile scroll
+    let startCalendarRef = $state<HTMLDivElement | null>(null);
+    let endCalendarRef = $state<HTMLDivElement | null>(null);
 
     // Tag creation states
     let showAddTag = $state(false);
@@ -38,16 +42,27 @@
     // Prefill when modal opens, reset when closed
     $effect(() => {
         if (isOpen) {
-            if (prefillStartWeek !== undefined && startWeek === undefined) {
+            // Prefill start/end weeks when modal opens
+            if (prefillStartWeek !== undefined) {
                 startWeek = prefillStartWeek;
             }
-            if (prefillEndWeek !== undefined && endWeek === undefined) {
+            if (prefillEndWeek !== undefined) {
                 endWeek = prefillEndWeek;
             }
         } else {
-            // Reset calendar states when modal closes
+            // Reset all form states when modal closes
+            name = '';
+            description = '';
+            startWeek = undefined;
+            endWeek = undefined;
+            selectedTag = undefined;
+            isSpecialWeek = false;
             showStartCalendar = false;
             showEndCalendar = false;
+            startCalendarValue = undefined;
+            endCalendarValue = undefined;
+            showAddTag = false;
+            newTagName = '';
         }
     });
 
@@ -64,6 +79,50 @@
         const date = calDate.toDate(getLocalTimeZone());
         return getWeekNumberFromBirthDate(birthDate, date);
     }
+    
+    // Helper to get CalendarDate from week number
+    function getCalendarDateFromWeek(weekNum: number | undefined): CalendarDate | undefined {
+        if (weekNum === undefined || weekNum < 1) return undefined;
+        try {
+            const { startDate } = getWeekStartDateAndEndDate(birthDate, weekNum, weekNum);
+            return new CalendarDate(startDate.getFullYear(), startDate.getMonth() + 1, startDate.getDate());
+        } catch {
+            return undefined;
+        }
+    }
+    
+    // Helper to format date as DD/MM/YY
+    function formatDate(date: Date): string {
+        const day = date.getDate().toString().padStart(2, '0');
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const year = date.getFullYear().toString();
+        return `${day}/${month}/${year}`;
+    }
+    
+    // Date helpers for showing what week corresponds to what date
+    function getStartDateForWeek(weekNum: number | undefined): string {
+        if (weekNum === undefined || weekNum < 1) return "-";
+        try {
+            const { startDate } = getWeekStartDateAndEndDate(birthDate, weekNum, weekNum);
+            return formatDate(startDate);
+        } catch {
+            return "-";
+        }
+    }
+    
+    function getEndDateForWeek(weekNum: number | undefined): string  {
+        if (weekNum === undefined || weekNum < 1) return "-";
+        try {
+            const { endDate } = getWeekStartDateAndEndDate(birthDate, weekNum, weekNum);
+            return formatDate(endDate);
+        } catch {
+            return "-";
+        }
+    }
+    
+    // Derived date displays
+    let startWeekStartDate = $derived(getStartDateForWeek(startWeek));
+    let endWeekEndDate = $derived(getEndDateForWeek(endWeek));
 
     function handleStartCalendarChange(value: DateValue | undefined) {
         if (value) {
@@ -80,25 +139,52 @@
             showEndCalendar = false;
         }
     }
+    
+    function toggleStartCalendar(e: MouseEvent) {
+        e.preventDefault();
+        showEndCalendar = false;
+        showStartCalendar = !showStartCalendar;
+        
+        // Preselect calendar date from current week input
+        if (showStartCalendar && startWeek !== undefined && startWeek >= 1) {
+            startCalendarValue = getCalendarDateFromWeek(startWeek);
+        }
+        
+        // Scroll into view on mobile after a tick
+        if (showStartCalendar) {
+            requestAnimationFrame(() => {
+                startCalendarRef?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            });
+        }
+    }
+    
+    function toggleEndCalendar(e: MouseEvent) {
+        e.preventDefault();
+        showStartCalendar = false;
+        showEndCalendar = !showEndCalendar;
+        
+        // Preselect calendar date from current week input
+        if (showEndCalendar && endWeek !== undefined && endWeek >= 1) {
+            endCalendarValue = getCalendarDateFromWeek(endWeek);
+        }
+        
+        // Scroll into view on mobile after a tick
+        if (showEndCalendar) {
+            requestAnimationFrame(() => {
+                endCalendarRef?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            });
+        }
+    }
 
-    let title = $derived(mode === 'chapter' ? 'Add New Life Chapter' : 'Add Special Event');
-    let subtitle = $derived(mode === 'chapter' ? 'Define a new era in your life story.' : 'Mark a memorable moment in time.');
-    let submitLabel = $derived(mode === 'chapter' ? 'Add Chapter' : 'Add Event');
+    let title = $derived(isSpecialWeek ? 'Add Special Week' : 'Add New Life Chapter');
+    let subtitle = $derived(isSpecialWeek ? 'Mark a memorable moment in time.' : 'Define a new era in your life story.');
+    let submitLabel = $derived(isSpecialWeek ? 'Add Special Week' : 'Add Chapter');
 
     function handleSubmit(e: Event) {
         e.preventDefault();
         if (startWeek === undefined || endWeek === undefined) return;
 
-        onHandleSubmit(name, description, startWeek, endWeek, selectedTag);
-
-        // Reset and close
-        name = '';
-        description = '';
-        startWeek = undefined;
-        endWeek = undefined;
-        selectedTag = undefined;
-        startCalendarValue = undefined;
-        endCalendarValue = undefined;
+        onHandleSubmit(name, description, startWeek, endWeek, selectedTag, isSpecialWeek);
         onClose();
     }
 
@@ -130,7 +216,7 @@
         <div>
             <div class="flex items-center gap-2 mb-1">
                 <span class="p-1.5 rounded-lg bg-primary/10 dark:bg-primary/20">
-                    <UnchangeableIcon name={mode === 'chapter' ? IconType.BOOK_OPEN : IconType.CELEBRATION} class="text-[18px] text-primary" />
+                    <UnchangeableIcon name={isSpecialWeek ? IconType.CELEBRATION : IconType.BOOK_OPEN} class="text-[18px] text-primary" />
                 </span>
                 <h3 class="font-display text-xl font-bold text-slate-900 dark:text-white tracking-tight">{title}</h3>
             </div>
@@ -139,6 +225,29 @@
     {/snippet}
 
     <form onsubmit={handleSubmit} class="space-y-6">
+        <!-- Special Week Toggle -->
+        <div class="p-4 bg-slate-50 dark:bg-slate-800/30 rounded-xl border border-slate-100 dark:border-slate-700/50">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <UnchangeableIcon name={IconType.CELEBRATION} class="text-[20px] text-amber-500" />
+                    <div>
+                        <Label for="special-week-toggle" class="text-sm font-semibold text-slate-700 dark:text-slate-200 cursor-pointer">Special Week</Label>
+                        <p class="text-[11px] text-slate-500 dark:text-slate-400">Mark as a short-term memorable event</p>
+                    </div>
+                </div>
+                <Switch id="special-week-toggle" bind:checked={isSpecialWeek} />
+            </div>
+            
+            {#if isSpecialWeek}
+                <div class="mt-3 flex gap-2 items-start p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-100 dark:border-amber-800/30">
+                    <UnchangeableIcon name={IconType.INFO} class="text-[14px] text-amber-600 dark:text-amber-400 mt-0.5 shrink-0" />
+                    <p class="text-[11px] text-amber-700 dark:text-amber-300 leading-relaxed">
+                        <strong>Special weeks</strong> are for short-term memorable events like a wedding, Thailand trip, or graduation ceremony — not for long-term life chapters.
+                    </p>
+                </div>
+            {/if}
+        </div>
+        
         <!-- Name Input -->
         <div class="space-y-2">
             <label class="block text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400" for="chapter-name">
@@ -147,7 +256,7 @@
             <input 
                 id="chapter-name"
                 class="w-full rounded-xl border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm py-3 px-4 font-medium shadow-sm placeholder:text-slate-400" 
-                placeholder={mode === 'chapter' ? "e.g., College Years, Career Pivot" : "e.g., Wedding Day, Graduation"}
+                placeholder={isSpecialWeek ? "e.g., Wedding Day, Thailand Trip" : "e.g., College Years, Career Pivot"}
                 required
                 bind:value={name}
             />
@@ -162,7 +271,7 @@
             <textarea 
                 id="chapter-desc"
                 class="w-full rounded-xl border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all h-24 resize-none placeholder:text-slate-400 text-sm py-3 px-4 shadow-sm leading-relaxed" 
-                placeholder={mode === 'chapter' ? "What defines this chapter of your life?" : "What makes this event special?"}
+                placeholder={isSpecialWeek ? "What makes this event special?" : "What defines this chapter of your life?"}
                 bind:value={description}
             ></textarea>
         </div>
@@ -187,8 +296,8 @@
                         <input 
                             id="start-week"
                             class="w-full rounded-xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary/20 focus:border-primary text-center font-mono text-sm py-3 pr-12 font-semibold shadow-sm transition-all group-hover/input:border-blue-300" 
-                            min="0" 
-                            placeholder="1560" 
+                            min="1" 
+                            placeholder="1" 
                             required 
                             type="number"
                             bind:value={startWeek}
@@ -196,14 +305,15 @@
                         <button 
                             type="button"
                             class="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-lg text-slate-400 hover:text-primary hover:bg-primary/10 transition-all"
-                            onclick={() => showStartCalendar = !showStartCalendar}
+                            onclick={toggleStartCalendar}
                             title="Select from date"
                         >
                             <UnchangeableIcon name={IconType.CALENDAR_MONTH} class="text-[18px]" />
                         </button>
                     </div>
+                    <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-1 ml-1 text-center">Starts: {startWeekStartDate}</p>
                     {#if showStartCalendar}
-                        <div class="absolute top-full left-0 mt-2 z-50 p-3 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 min-w-[320px]">
+                        <div bind:this={startCalendarRef} class="absolute top-full left-0 mt-2 z-50 p-3 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 min-w-[320px]">
                             <Calendar
                                 type="single"
                                 bind:value={startCalendarValue}
@@ -224,8 +334,8 @@
                         <input 
                             id="end-week"
                             class="w-full rounded-xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary/20 focus:border-primary text-center font-mono text-sm py-3 pr-12 font-semibold shadow-sm transition-all group-hover/input:border-blue-300" 
-                            min="0" 
-                            placeholder="1768" 
+                            min="1" 
+                            placeholder="52" 
                             required 
                             type="number"
                             bind:value={endWeek}
@@ -233,14 +343,15 @@
                         <button 
                             type="button"
                             class="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-lg text-slate-400 hover:text-primary hover:bg-primary/10 transition-all"
-                            onclick={() => showEndCalendar = !showEndCalendar}
+                            onclick={toggleEndCalendar}
                             title="Select from date"
                         >
                             <UnchangeableIcon name={IconType.CALENDAR_MONTH} class="text-[18px]" />
                         </button>
                     </div>
+                    <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-1 ml-1 text-center">Ends: {endWeekEndDate}</p>
                     {#if showEndCalendar}
-                        <div class="absolute top-full right-0 mt-2 z-50 p-3 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 min-w-[320px]">
+                        <div bind:this={endCalendarRef} class="absolute top-full right-0 mt-2 z-50 p-3 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 min-w-[320px]">
                             <Calendar
                                 type="single"
                                 bind:value={endCalendarValue}

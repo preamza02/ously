@@ -7,16 +7,33 @@
         value: number;
     }
 
-    let { remainingWeeks, lifeProgress, tagStats, remainingActiveYears, unplannedWeeks } = $props<{
+    let { remainingWeeks, lifeProgress, tagStats, futureTagStats, remainingActiveYears, unplannedWeeks, futureUnplannedWeeks } = $props<{
         remainingWeeks: number;
         lifeProgress: number;
         tagStats: TagStat[];
+        futureTagStats: TagStat[];
         remainingActiveYears: number;
         unplannedWeeks: number;
+        futureUnplannedWeeks: number;
     }>();
     
-    // UI-only derived: Top 3 tags (excluding unplanned)
-    let topTags = $derived(tagStats.filter((t: TagStat) => t.tag.id !== 'unplanned').slice(0, 3));
+    // Toggle between all life and future focus
+    let focusMode = $state<'all' | 'future'>('all');
+    
+    // UI-only derived: All tags based on mode (including unplanned)
+    let displayTags = $derived(() => {
+        const stats = focusMode === 'all' ? tagStats : futureTagStats;
+        // Add unplanned weeks as a tag stat
+        const unplannedStat = {
+            tag: { id: 'unplanned', name: 'Unplanned', color: '#94a3b8' },
+            value: focusMode === 'all' ? unplannedWeeks : futureUnplannedWeeks
+        };
+        // Combine and sort all stats including unplanned
+        const allStats = [...stats, unplannedStat].sort((a, b) => b.value - a.value);
+        return allStats.slice(0, 4); // Show top 4 tags
+    });
+
+    let totalWeeksForCalc = $derived(focusMode === 'all' ? 4160 : remainingWeeks);
 
     let progressPercentage = $derived(100 - Math.round(lifeProgress));
     
@@ -30,8 +47,8 @@
 
 <div class="bg-surface-light dark:bg-surface-dark rounded-2xl shadow-card p-6 border border-border-light dark:border-border-dark sticky top-6">
     <div class="flex items-center gap-2 mb-6 text-primary">
-        <UnchangeableIcon name={IconType.INSIGHTS} />
-        <h3 class="font-display text-lg font-bold text-slate-900 dark:text-white">Time Insights</h3>
+        <UnchangeableIcon name={IconType.LIGHTBULB} />
+        <h3 class="font-display text-lg font-bold text-slate-900 dark:text-white">Summary</h3>
     </div>
 
     <div class="flex items-center justify-between mb-2">
@@ -49,9 +66,25 @@
     </div>
 
     <div class="space-y-5">
-        <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Life Focus</h4>
+        <div class="flex items-center justify-between mb-3">
+            <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider">{focusMode === 'all' ? 'Life Focus' : 'Future Focus'}</h4>
+            <div class="flex bg-slate-100 dark:bg-slate-800 p-0.5 rounded-md">
+                <button 
+                    class="px-2 py-0.5 text-[10px] font-semibold rounded transition-all {focusMode === 'all' ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'}"
+                    onclick={() => focusMode = 'all'}
+                >
+                    All
+                </button>
+                <button 
+                    class="px-2 py-0.5 text-[10px] font-semibold rounded transition-all {focusMode === 'future' ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'}"
+                    onclick={() => focusMode = 'future'}
+                >
+                    Future
+                </button>
+            </div>
+        </div>
         
-        {#each topTags as stat}
+        {#each displayTags() as stat}
             {@const color = stat.tag.color || '#94a3b8'}
             <div class="group">
                 <div class="flex items-center justify-between mb-1.5">
@@ -68,26 +101,14 @@
                 <div class="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-1.5 overflow-hidden">
                     <div 
                         class="h-1.5 rounded-full transition-all duration-500" 
-                        style="width: {Math.min(100, (stat.value / 4160) * 100 * 3)}%; background-color: {color}"
+                        style="width: {Math.min(100, (stat.value / totalWeeksForCalc) * 100 * 3)}%; background-color: {color}"
                     ></div>
                 </div>
             </div>
         {/each}
-
-        <div class="group">
-            <div class="flex items-center justify-between mb-1.5">
-                <div class="flex items-center gap-2">
-                    <span class="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-[10px] font-bold border border-slate-200 dark:border-slate-700">#Unplanned</span>
-                </div>
-                <span class="text-sm font-bold text-slate-500 dark:text-slate-400">{unplannedWeeks.toLocaleString()} wks</span>
-            </div>
-            <div class="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-1.5 overflow-hidden">
-                <div class="bg-slate-400 h-1.5 rounded-full transition-all duration-500" style="width: {Math.min(100, (unplannedWeeks / 4160) * 100)}%"></div>
-            </div>
-        </div>
     </div>
 
-    <div class="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800">
+    <!-- <div class="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800">
         <div class="bg-primary/5 rounded-xl p-4">
             <div class="flex gap-2 mb-2">
                 <UnchangeableIcon name={IconType.LIGHTBULB} class="text-primary text-[20px]" />
@@ -98,5 +119,5 @@
             </p>
         </div>
         <p class="text-[10px] text-slate-400 italic text-center mt-4">"We have two lives, and the second begins when we realize we only have one."</p>
-    </div>
+    </div> -->
 </div>

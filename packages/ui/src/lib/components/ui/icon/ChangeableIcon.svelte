@@ -1,7 +1,7 @@
 <script lang="ts">
     import { cn } from "../../../utils.js";
     import UnchangeableIcon from "./UnchangeableIcon.svelte";
-    import * as Dialog from "../dialog/index.js";
+    import * as Popover from "../popover/index.js";
     import { availableIcons, IconType } from "./icons.js";
 
     let {
@@ -23,8 +23,8 @@
     }
 </script>
 
-<Dialog.Root bind:open={isOpen}>
-    <Dialog.Trigger>
+<Popover.Root bind:open={isOpen}>
+    <Popover.Trigger>
         {#snippet child({ props })}
             <button
                 {...props}
@@ -33,13 +33,15 @@
                 <UnchangeableIcon {name} class={className} />
             </button>
         {/snippet}
-    </Dialog.Trigger>
-    <Dialog.Content class="sm:max-w-md">
-        <Dialog.Header>
-            <Dialog.Title>Select Icon</Dialog.Title>
-        </Dialog.Header>
+    </Popover.Trigger>
+    <Popover.Content class="w-auto p-2" align="start" sideOffset={8}>
         <div
-            class="grid grid-cols-6 gap-2 py-4 max-h-[300px] overflow-y-auto custom-scrollbar"
+            class="mb-2 text-sm font-medium text-slate-700 dark:text-slate-300"
+        >
+            Select Icon
+        </div>
+        <div
+            class="grid grid-cols-6 gap-2 max-h-[250px] overflow-y-auto custom-scrollbar"
         >
             {#each availableIcons as icon}
                 <button
@@ -54,8 +56,8 @@
                 </button>
             {/each}
         </div>
-    </Dialog.Content>
-</Dialog.Root>
+    </Popover.Content>
+</Popover.Root>
 
 <style>
     .custom-scrollbar::-webkit-scrollbar {

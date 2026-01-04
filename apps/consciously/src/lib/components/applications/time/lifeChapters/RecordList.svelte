@@ -2,7 +2,7 @@
     import type { LifeChapter } from '@ously/core/time/repo/lifeChapter';
     import type { Tag } from '@ously/core/utils/id';
     import { formatAgeRange, formatWeeks, getIconForTag } from './helpers';
-    import { getAgeRangeFromChapter, getChapterDuration, getWeekNumberFromBirthDate } from '@ously/core/time/app/weekInYourLife';
+    import { getAgeRangeFromChapter, getChapterDuration, getWeekNumberFromBirthDate, getWeekStartDateAndEndDate } from '@ously/core/time/app/weekInYourLife';
     import { UnchangeableIcon, Modal, Calendar, IconType } from '@ously/ui';
     import { getLocalTimeZone, CalendarDate, type DateValue } from '@internationalized/date';
 
@@ -66,6 +66,50 @@
             showEditEndCalendar = false;
         }
     }
+    
+    // Helper to format date as DD/MM/YY
+    function formatDate(date: Date): string {
+        const day = date.getDate().toString().padStart(2, '0');
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const year = date.getFullYear().toString()
+        return `${day}/${month}/${year}`;
+    }
+    
+    // Date helpers for showing what week corresponds to what date
+    function getStartDateForWeek(weekNum: number | undefined): string {
+        if (weekNum === undefined || weekNum < 1) return "-";
+        try {
+            const { startDate } = getWeekStartDateAndEndDate(birthDate, weekNum, weekNum);
+            return formatDate(startDate);
+        } catch {
+            return "-";
+        }
+    }
+    
+    function getEndDateForWeek(weekNum: number | undefined): string  {
+        if (weekNum === undefined || weekNum < 1) return "-";
+        try {
+            const { endDate } = getWeekStartDateAndEndDate(birthDate, weekNum, weekNum);
+            return formatDate(endDate);
+        } catch {
+            return "-";
+        }
+    }
+    
+    // Helper to get CalendarDate from week number for calendar preselection
+    function getCalendarDateFromWeek(weekNum: number | undefined): CalendarDate | undefined {
+        if (weekNum === undefined || weekNum < 1) return undefined;
+        try {
+            const { startDate } = getWeekStartDateAndEndDate(birthDate, weekNum, weekNum);
+            return new CalendarDate(startDate.getFullYear(), startDate.getMonth() + 1, startDate.getDate());
+        } catch {
+            return undefined;
+        }
+    }
+    
+    // Derived date displays for edit modal
+    let editStartWeekStartDate = $derived(getStartDateForWeek(editStartWeek));
+    let editEndWeekEndDate = $derived(getEndDateForWeek(editEndWeek));
 
     function getColorStyles(tag: Tag | undefined): { bg: string; bgLight: string; text: string } {
         const color = tag?.color || '#94a3b8';
@@ -291,19 +335,26 @@
                         <input 
                             id="edit-start"
                             type="number"
-                            min="0"
+                            min="1"
                             class="w-full rounded-xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary/20 focus:border-primary text-center font-mono text-sm py-3 pr-12 font-semibold shadow-sm transition-all hover:border-blue-300" 
                             bind:value={editStartWeek}
                         />
                         <button 
                             type="button"
                             class="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-lg text-slate-400 hover:text-primary hover:bg-primary/10 transition-all"
-                            onclick={() => showEditStartCalendar = !showEditStartCalendar}
+                            onclick={() => {
+                                showEditEndCalendar = false;
+                                showEditStartCalendar = !showEditStartCalendar;
+                                if (showEditStartCalendar && editStartWeek !== undefined && editStartWeek >= 1) {
+                                    editStartCalendarValue = getCalendarDateFromWeek(editStartWeek);
+                                }
+                            }}
                             title="Select from date"
                         >
                             <UnchangeableIcon name={IconType.CALENDAR_MONTH} class="text-[18px]" />
                         </button>
                     </div>
+                    <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-1 ml-1 text-center">Starts: {editStartWeekStartDate}</p>
                     {#if showEditStartCalendar}
                         <div class="absolute top-full left-0 mt-2 z-50 p-3 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 min-w-[320px]">
                             <Calendar
@@ -326,19 +377,26 @@
                         <input 
                             id="edit-end"
                             type="number"
-                            min="0"
+                            min="1"
                             class="w-full rounded-xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary/20 focus:border-primary text-center font-mono text-sm py-3 pr-12 font-semibold shadow-sm transition-all hover:border-blue-300" 
                             bind:value={editEndWeek}
                         />
                         <button 
                             type="button"
                             class="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-lg text-slate-400 hover:text-primary hover:bg-primary/10 transition-all"
-                            onclick={() => showEditEndCalendar = !showEditEndCalendar}
+                            onclick={() => {
+                                showEditStartCalendar = false;
+                                showEditEndCalendar = !showEditEndCalendar;
+                                if (showEditEndCalendar && editEndWeek !== undefined && editEndWeek >= 1) {
+                                    editEndCalendarValue = getCalendarDateFromWeek(editEndWeek);
+                                }
+                            }}
                             title="Select from date"
                         >
                             <UnchangeableIcon name={IconType.CALENDAR_MONTH} class="text-[18px]" />
                         </button>
                     </div>
+                    <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-1 ml-1 text-center">Ends: {editEndWeekEndDate}</p>
                     {#if showEditEndCalendar}
                         <div class="absolute top-full right-0 mt-2 z-50 p-3 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 min-w-[320px]">
                             <Calendar

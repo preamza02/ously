@@ -3,10 +3,11 @@
     import { UnchangeableIcon, IconType } from '@ously/ui';
     import type { WeekInYourLife, LifeChapter } from '@ously/core/time/repo/lifeChapter';
 
-    let { currentChapter, upcomingEvents, currentWeekNumber } = $props<{
+    let { currentChapter, upcomingEvents, currentWeekNumber, onEditChapter } = $props<{
         currentChapter: WeekInYourLife | undefined;
         upcomingEvents: LifeChapter[];
         currentWeekNumber: number;
+        onEditChapter?: (chapter: LifeChapter) => void;
     }>();
 
     // Local UI state (stays here)
@@ -16,6 +17,12 @@
 
     function toggleView(mode: 'current' | 'upcoming') {
         viewMode = mode;
+    }
+    
+    function handleEditClick() {
+        if (currentChapter?.focus && onEditChapter) {
+            onEditChapter(currentChapter.focus);
+        }
     }
 </script>
 
@@ -84,6 +91,15 @@
                             </div>
                         </div>
                     </div>
+                    {#if onEditChapter}
+                        <button
+                            class="p-2 rounded-lg text-slate-400 hover:text-primary hover:bg-primary/10 transition-all absolute top-2 right-2 md:static md:self-center"
+                            onclick={handleEditClick}
+                            title="Edit chapter"
+                        >
+                            <UnchangeableIcon name={IconType.EDIT} class="text-[20px]" />
+                        </button>
+                    {/if}
                 </div>
             {:else}
                 <div class="p-8 text-center text-slate-500">

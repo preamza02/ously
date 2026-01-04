@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { fly } from 'svelte/transition';
-	import { Card, CardHeader, CardTitle, CardContent } from '@ously/ui';
+	import { Card, CardHeader, CardTitle, CardContent, ShareButton } from '@ously/ui';
 	import { 
 		Home, 
 		Banknote, 
@@ -99,12 +99,17 @@
 	</div>
 
 	<!-- Title -->
-	<h2 
+	<div 
 		in:fly={{ y: 20, duration: 800, delay: 100 }}
-		class="font-display mb-2 text-3xl font-bold tracking-tight text-slate-900 dark:text-white md:text-4xl text-center"
+		class="flex items-center gap-2 mb-2"
 	>
-		{appInfo.title}
-	</h2>
+		<h2 
+			class="font-display text-3xl font-bold tracking-tight text-slate-900 dark:text-white md:text-4xl text-center"
+		>
+			{appInfo.title}
+		</h2>
+		<ShareButton anchor={appId} />
+	</div>
 	
 	<p 
 		in:fly={{ y: 20, duration: 800, delay: 200 }}

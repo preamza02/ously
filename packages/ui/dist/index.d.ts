@@ -9,6 +9,18 @@ export { RadioGroup, RadioGroupItem } from './components/ui/radio-group/index.js
 export { Select, SelectGroup, SelectLabel, SelectItem, SelectContent, SelectTrigger, SelectSeparator, SelectScrollDownButton, SelectScrollUpButton, SelectGroupHeading, SelectPortal } from './components/ui/select/index.js';
 export { Separator } from './components/ui/separator/index.js';
 export { Tabs, TabsContent, TabsList, TabsTrigger } from './components/ui/tabs/index.js';
+export { Tag, type TagInput } from './components/ui/tag/index.js';
+export { AppToggle } from './components/ui/app-toggle/index.js';
+export { Modal } from './components/ui/modal/index.js';
+export { Calendar } from './components/ui/calendar/index.js';
+export * as Popover from './components/ui/popover/index.js';
+export { Switch } from './components/ui/switch/index.js';
 export { default as Shell } from './components/layout/Shell.svelte';
 export { default as Navbar } from './components/layout/Navbar.svelte';
 export { default as Sidebar } from './components/layout/Sidebar.svelte';
+export { default as UnchangeableIcon } from './components/ui/icon/UnchangeableIcon.svelte';
+export { default as ChangeableIcon } from './components/ui/icon/ChangeableIcon.svelte';
+export { default as OuslySeparator } from './components/customComponents/OuslySeparator.svelte';
+export { IconType, iconMap } from './components/ui/icon/icons.js';
+export { default as CreatorCard } from './components/customComponents/CreatorCard.svelte';
+export { default as ShareButton } from './components/customComponents/ShareButton.svelte';

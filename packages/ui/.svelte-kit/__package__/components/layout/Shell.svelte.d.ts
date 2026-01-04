@@ -6,7 +6,7 @@ interface NavItem {
 interface MenuItem {
     label: string;
     icon: any;
-    id: string;
+    href: string;
 }
 interface MenuSection {
     category: string;

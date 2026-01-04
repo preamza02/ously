@@ -1,12 +1,11 @@
 <script lang="ts">
     import { page } from "$app/stores";
-    import { onMount } from "svelte";
     import AppLogo from "../ui/branding/AppLogo.svelte";
 
     interface MenuItem {
         label: string;
         icon: any;
-        id: string;
+        href: string;
     }
 
     interface MenuSection {
@@ -34,8 +33,6 @@
         user,
     }: Props = $props();
 
-    let activeSection = $state("");
-
     // Determine current menu based on pathname
     let currentMenu = $derived.by(() => {
         const path = $page.url.pathname;
@@ -48,102 +45,13 @@
         return [];
     });
 
-    function scrollToSection(id: string) {
-        const element = document.getElementById(id);
-        const mainContainer = document.querySelector("main");
-        if (element && mainContainer) {
-            const containerRect = mainContainer.getBoundingClientRect();
-            const elementRect = element.getBoundingClientRect();
-            const relativeTop = elementRect.top - containerRect.top;
+    // Determine active section based on current pathname
+    let activeSection = $derived($page.url.pathname);
 
-            mainContainer.scrollBy({
-                top: relativeTop - 24, // 24px offset for padding
-                behavior: "smooth",
-            });
-
-            activeSection = id;
-
-            // Close sidebar on mobile after selection
-            if (onClose) onClose();
-        }
+    function handleNavClick() {
+        // Close sidebar on mobile after selection
+        if (onClose) onClose();
     }
-
-    onMount(() => {
-        const mainContainer = document.querySelector("main");
-        if (!mainContainer) return;
-
-        const handleScroll = () => {
-            const scrollTop = mainContainer.scrollTop;
-            const containerRect = mainContainer.getBoundingClientRect();
-
-            // Get all sections that actually exist in the DOM
-            const sections = [];
-            currentMenu.forEach((section) => {
-                section.items.forEach((item) => {
-                    const el = document.getElementById(item.id);
-                    if (el) {
-                        sections.push({ id: item.id, el });
-                    }
-                });
-            });
-
-            if (sections.length === 0) return;
-
-            // If we are at the very top, always highlight the first existing item
-            if (scrollTop < 50) {
-                activeSection = sections[0].id;
-                return;
-            }
-
-            // Find the section that is closest to the top of the container
-            let closestSection = activeSection;
-            let minDistance = Infinity;
-            const triggerOffset = 150;
-
-            for (const section of sections) {
-                const rect = section.el.getBoundingClientRect();
-                const distance = rect.top - containerRect.top;
-
-                // We want the section whose top is closest to the trigger point (e.g., 24px from top)
-                // but we only consider sections that have already reached or passed the trigger point
-                if (distance <= triggerOffset) {
-                    const absDistance = Math.abs(distance - 24);
-                    if (absDistance < minDistance) {
-                        minDistance = absDistance;
-                        closestSection = section.id;
-                    }
-                }
-            }
-
-            if (closestSection !== activeSection) {
-                activeSection = closestSection;
-            }
-        };
-
-        mainContainer.addEventListener("scroll", handleScroll, {
-            passive: true,
-        });
-
-        // Initial check
-        const timer = setTimeout(handleScroll, 500);
-
-        return () => {
-            clearTimeout(timer);
-            mainContainer.removeEventListener("scroll", handleScroll);
-        };
-    });
-
-    $effect(() => {
-        if (currentMenu) {
-            setTimeout(() => {
-                const mainContainer = document.querySelector("main");
-                if (mainContainer) {
-                    const event = new Event("scroll");
-                    mainContainer.dispatchEvent(event);
-                }
-            }, 50);
-        }
-    });
 </script>
 
 <!-- Mobile Overlay -->
@@ -180,16 +88,17 @@
                     {section.category}
                 </p>
                 {#each section.items as item}
-                    <button
-                        onclick={() => scrollToSection(item.id)}
+                    <a
+                        href={item.href}
+                        onclick={handleNavClick}
                         class="flex items-center gap-3 px-3 py-2 text-sm rounded-xl transition-colors w-full text-left {activeSection ===
-                        item.id
+                        item.href
                             ? 'font-semibold text-primary bg-blue-50 dark:bg-blue-900/20'
                             : 'font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800/50'}"
                     >
                         <item.icon class="h-5 w-5" />
                         {item.label}
-                    </button>
+                    </a>
                 {/each}
             </div>
         {/each}

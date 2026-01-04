@@ -61,3 +61,12 @@ export function getIconForTag(tagId: string | undefined): IconType {
     return IconType.ROCKET_LAUNCH;
 }
 
+
+/**
+ * Calculate the week number of a date relative to a birth date
+ */
+export function getWeekNumber(date: Date, birthDate: Date): number {
+    const diffTime = date.getTime() - birthDate.getTime();
+    const diffWeeks = Math.floor(diffTime / (1000 * 60 * 60 * 24 * 7));
+    return diffWeeks;
+}

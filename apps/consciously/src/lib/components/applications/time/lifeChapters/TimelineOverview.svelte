@@ -1,15 +1,15 @@
 <script lang="ts">
     import type { WeekInYourLife } from '@ously/core/time/repo/lifeChapter';
     import { UnchangeableIcon, IconType } from '@ously/ui';
+    import TimeInsightModal from './TimeInsightModal.svelte';
 
-    let { onAddChapter, onAddSpecialEvent, onOpenSettings, onShowHelp, timeline, currentWeekNumber, lifeSpanWeeks, activeLifeYears = 65, hasOpenedHelpBefore = true } = $props<{ 
+    let { onAddChapter, onOpenSettings, onShowHelp, timeline, currentWeekNumber, lifeSpanWeeks, activeLifeYears = 65, hasOpenedHelpBefore = true } = $props<{ 
         timeline: WeekInYourLife[];
         currentWeekNumber: number;
         lifeSpanWeeks: number;
         activeLifeYears?: number;
         hasOpenedHelpBefore?: boolean;
         onAddChapter: () => void;
-        onAddSpecialEvent?: () => void;
         onOpenSettings?: () => void;
         onShowHelp?: () => void;
     }>();
@@ -44,6 +44,16 @@
         if (segment.weekNumberStart >= currentWeekNumber) return 'h-4 hover:h-6';
         return 'h-4 hover:h-8';
     }
+    // Modal state for Time Insight button
+    let showInsightModal = $state(false);
+
+    function openInsightModal() {
+        showInsightModal = true;
+    }
+    
+    function closeInsightModal() {
+        showInsightModal = false;
+    }
 </script>
 
 <div class="bg-surface-light dark:bg-surface-dark p-6 rounded-3xl border border-border-light dark:border-border-dark shadow-soft relative overflow-hidden mb-8">
@@ -58,7 +68,7 @@
                 <span class="text-slate-400">Week {currentWeekNumber.toLocaleString()} of {lifeSpanWeeks.toLocaleString()}</span>
             </div>
         </div>
-        <div class="flex items-center gap-2 flex-wrap-reverse justify-end">
+        <div class="flex items-center gap-2 flex-wrap-reverse justify-end self-end">
             <div class="relative order-4">
                 {#if !hasOpenedHelpBefore}
                     <span class="absolute -top-5 left-1/2 -translate-x-1/2 text-[10px] font-bold text-primary whitespace-nowrap">Click here</span>
@@ -68,9 +78,10 @@
                     onclick={onShowHelp}
                     title="About Life in Weeks"
                 >
-                    <UnchangeableIcon name={IconType.HELP} class="text-[20px]" />
+                    <UnchangeableIcon name={IconType.INFO} class="text-[20px]" />
                 </button>
             </div>
+            
             <button 
                 class="bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 p-2 rounded-lg transition-all flex items-center justify-center order-3"
                 onclick={onOpenSettings}
@@ -78,14 +89,17 @@
             >
                 <UnchangeableIcon name={IconType.USER_COG} class="text-[20px]" />
             </button>
-            <button 
-                class="bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 px-3 py-2 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 whitespace-nowrap order-2"
-                onclick={onAddSpecialEvent}
-            >
-                <UnchangeableIcon name={IconType.ADD} class="text-[16px]" />
-                <span class="hidden sm:inline">Special Week</span>
-                <span class="sm:hidden">Special</span>
-            </button>
+
+            <div class="relative order-2">
+                <button 
+                    class="bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 p-2 rounded-lg transition-all flex items-center justify-center"
+                    onclick={openInsightModal}
+                    title="Time Insights"
+                >
+                    <UnchangeableIcon name={IconType.INSIGHTS} class="text-[20px]" />
+                </button>
+            </div>
+
             <button 
                 class="bg-primary text-white hover:bg-primary-dark px-3 py-2 rounded-lg text-xs font-semibold shadow-lg shadow-blue-500/20 transition-all flex items-center gap-1.5 whitespace-nowrap order-1"
                 onclick={onAddChapter}
@@ -140,6 +154,11 @@
         <span>Age 80</span>
     </div>
 </div>
+
+<TimeInsightModal 
+    isOpen={showInsightModal} 
+    onClose={closeInsightModal} 
+/>
 
 <style>
     .timeline-segment {

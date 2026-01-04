@@ -37,15 +37,15 @@
 			{
 				category: 'Financial Planning',
 				items: [
-					{ label: 'Zero-Based Budgeting (Incoming)', icon: PiggyBank, id: 'money-budgeting' },
-					{ label: 'Retirement Planning (Incoming)', icon: Banknote, id: 'retirement-planning' },
+					{ label: 'Zero-Based Budgeting', icon: PiggyBank, href: '/financial/money-budgeting' },
+					{ label: 'Retirement Planning (Incoming)', icon: Banknote, href: '/financial/retirement-planning' },
 				]
 			},
 			{
 				category: 'Financial Optimization',
 				items: [
-					{ label: 'Tax Optimization (Incoming)', icon: HandCoins, id: 'tax-optimization' },
-					{ label: 'Cashflow Analysis (Incoming)', icon: Coins, id: 'cashflow-analysis' },
+					{ label: 'Tax Optimization (Incoming)', icon: HandCoins, href: '/financial/tax-optimization' },
+					{ label: 'Cashflow Analysis (Incoming)', icon: Coins, href: '/financial/cashflow-analysis' },
 				]
 			},
 		],
@@ -53,7 +53,7 @@
 			{
 				category: 'Health Optimization',
 				items: [
-					{ label: 'Meal Optimization (Incoming)', icon: Utensils, id: 'meal-optimization' },
+					{ label: 'Meal Optimization (Incoming)', icon: Utensils, href: '/health/meal-optimization' },
 				]
 			}
 		],
@@ -61,19 +61,14 @@
 			{
 				category: 'Time Planning',
 				items: [
-					{ label: 'Life Chapter', icon: Calendar, id: 'life-in-weeks' },
-					{ label: 'Time Budgeting (Incoming)', icon: Clock, id: 'time-budgeting' },
+					{ label: 'Life Chapter', icon: Calendar, href: '/time/life-chapter' },
+					{ label: 'Time Budgeting (Incoming)', icon: Clock, href: '/time/time-budgeting' },
 				]
 			}
 		]
 	};
 
-    // Mock user data for now
-    const user = {
-        name: 'Guest',
-        since: 'since today',
-        avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDoR7s1REfJR-DsqgIGs8qzOmcNKBoGaH03CRXZwtkXi25u1tACR52ZqgQd_xRcnC_t28ZMr5jcxVpZKqPueMJCGoDQPhWCBm-tsCm9udFXaYb472-Ztu66dnJXzc7LE6f4XxD8Pb_ovwXo3ewEesoBOog76xbHT8YGZ-6UZl4TJmWC_sicuvyonPxTP3fiSZfbpyf-h7b7B0MkOEM22Cdrc8Vp8VQ3wQNGeE300l2kYJpt-MjwmH9G2HsNxMRz1LHnkZvvKzpSd6Y'
-    };
+    import { user } from '$lib/stores/user';
 
     let isAppSettingsOpen = $state(false);
 

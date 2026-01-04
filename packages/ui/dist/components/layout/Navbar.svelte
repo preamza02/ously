@@ -1,6 +1,8 @@
 <script lang="ts">
     import { page } from "$app/stores";
-    import { Infinity } from "lucide-svelte";
+    import { Infinity, Menu } from "lucide-svelte";
+    import AppToggle from "../ui/app-toggle/AppToggle.svelte";
+    import AppLogo from "../ui/branding/AppLogo.svelte";
 
     interface NavItem {
         label: string;
@@ -15,11 +17,13 @@
             since: string;
             avatar: string;
         };
+        onToggleMenu?: () => void;
     }
 
     let {
         navItems = [],
         user = { name: "Guest", since: "", avatar: "" },
+        onToggleMenu,
     }: Props = $props();
 </script>
 
@@ -27,53 +31,36 @@
     class="sticky top-0 z-50 w-full backdrop-blur-xl bg-white/80 dark:bg-background-dark/80 border-b border-border-light/50 dark:border-border-dark/50"
 >
     <div
-        class="max-w-[1600px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between"
+        class="max-w-[1600px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between relative"
     >
+        <!-- Left Section: Logo & Mobile Menu -->
         <div class="flex items-center gap-4">
-            <div class="flex items-center gap-2.5">
-                <div
-                    class="w-8 h-8 rounded-lg bg-slate-900 dark:bg-white flex items-center justify-center text-white dark:text-slate-900 shadow-sm"
-                >
-                    <Infinity class="h-5 w-5" />
-                </div>
-                <h1
-                    class="font-display font-bold text-base text-slate-900 dark:text-white tracking-tight hidden sm:block"
-                >
-                    Consciously
-                </h1>
-            </div>
-            <div
-                class="h-6 w-px bg-slate-200 dark:bg-slate-700 mx-2 hidden md:block"
-            ></div>
-            <nav class="hidden md:flex items-center gap-1">
-                {#each navItems as item}
-                    {#if $page.url.pathname.startsWith(item.href)}
-                        <a
-                            href={item.href}
-                            class="px-3 py-1.5 text-xs font-bold text-primary bg-primary/10 dark:bg-primary/20 transition-all rounded-lg flex items-center gap-1.5"
-                        >
-                            <item.icon class="h-4 w-4" />
-                            {item.label}
-                        </a>
-                    {:else}
-                        <a
-                            href={item.href}
-                            class="px-3 py-1.5 text-xs font-semibold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-all rounded-lg hover:bg-slate-100/50 dark:hover:bg-slate-800/50 flex items-center gap-1.5"
-                        >
-                            <item.icon class="h-4 w-4" />
-                            {item.label}
-                        </a>
-                    {/if}
-                {/each}
-            </nav>
+            <button
+                class="lg:hidden p-2 -ml-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+                onclick={onToggleMenu}
+                aria-label="Toggle menu"
+            >
+                <Menu class="h-5 w-5" />
+            </button>
+
+            <AppLogo class="hidden lg:flex" />
         </div>
-        <div class="flex items-center gap-4">
+
+        <!-- Center Section: App Toggle -->
+        <div
+            class="flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+        >
+            <AppToggle options={navItems} />
+        </div>
+
+        <!-- Right Section: User Profile (Desktop Only) -->
+        <div class="hidden lg:flex items-center gap-4">
             <div class="flex items-center gap-3">
                 <div class="text-right hidden sm:block">
                     <p class="text-xs font-bold text-slate-900 dark:text-white">
                         {user.name}
                     </p>
-                    <p class="text-[10px] text-slate-500">Premium Plan</p>
+                    <p class="text-[10px] text-slate-500">{user.since}</p>
                 </div>
                 <div
                     class="h-9 w-9 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 p-[2px] cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-300"

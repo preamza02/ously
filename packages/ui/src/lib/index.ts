@@ -25,3 +25,4 @@ export { default as ChangeableIcon } from './components/ui/icon/ChangeableIcon.s
 export { default as OuslySeparator } from './components/customComponents/OuslySeparator.svelte';
 export { IconType, iconMap } from './components/ui/icon/icons.js';
 export { default as CreatorCard } from './components/customComponents/CreatorCard.svelte';
+export { default as ShareButton } from './components/customComponents/ShareButton.svelte';
