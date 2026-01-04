@@ -12,6 +12,16 @@ importers:
         specifier: ^2.7.2
         version: 2.7.2
 
+  apps/api:
+    dependencies:
+      hono:
+        specifier: ^4.11.3
+        version: 4.11.3
+    devDependencies:
+      wrangler:
+        specifier: ^4.4.0
+        version: 4.56.0(@cloudflare/workers-types@4.20251228.0)
+
   apps/consciously:
     dependencies:
       '@ously/core':
@@ -2549,6 +2559,10 @@ packages:
   has-flag@4.0.0:
     resolution: {integrity: sha512-EykJT/Q1KjTWctppgIAgfSO0tKVuZUjhgMr17kqTumMl6Afv3EISleU7qZUzoXDFTAHTDC4NOoG/ZxU3EvlMPQ==, tarball: https://registry.npmjs.org/has-flag/-/has-flag-4.0.0.tgz}
     engines: {node: '>=8'}
+
+  hono@4.11.3:
+    resolution: {integrity: sha512-PmQi306+M/ct/m5s66Hrg+adPnkD5jiO6IjA7WhWw0gSBSo1EcRegwuI1deZ+wd5pzCGynCcn2DprnE4/yEV4w==, tarball: https://registry.npmjs.org/hono/-/hono-4.11.3.tgz}
+    engines: {node: '>=16.9.0'}
 
   html-escaper@2.0.2:
     resolution: {integrity: sha512-H2iMtd0I4Mt5eYiapRdIDjp+XzelXQ0tFE4JS7YFwFevXXMmOp9myNrUvCg0D6ws8iqkRPBfKHgbwig1SmlLfg==, tarball: https://registry.npmjs.org/html-escaper/-/html-escaper-2.0.2.tgz}
@@ -5638,6 +5652,8 @@ snapshots:
   graceful-fs@4.2.11: {}
 
   has-flag@4.0.0: {}
+
+  hono@4.11.3: {}
 
   html-escaper@2.0.2: {}
 
